@@ -19,10 +19,9 @@ Invoke the `pickle-inspect-screen` skill for every screen the approved test case
 
 ## 3. Generate
 
-Follow the existing conventions - read `pickle_automation/pages/base_page.py`, `tests/test_pickles_generation_flow.py`, `tests/conftest.py` (or `tests/pickle-flow.spec.ts`) first.
+Follow the existing conventions - read `pickle_automation/pages/base_page.py`, `tests/test_pickles_generation_flow.py`, `tests/conftest.py`, and `tests/test_login_flow.py` first.
 
-- Appium: reuse/extend page objects (POM); add new pages only when needed. One test per approved TC, named `test_tc001_<slug>`, marked `@pytest.mark.mobile` plus `smoke`/`regression`. Selectors that are unknown go in as clearly marked placeholders (`# TODO selector`) - never fake them as real.
-- Playwright: prefer role/label locators; one `test()` per TC.
+- Reuse/extend page objects (POM); add new pages only when needed. One test per approved TC, named `test_tc001_<slug>`, marked `@pytest.mark.mobile` plus `smoke`/`regression`. Selectors that are unknown go in as clearly marked placeholders (`# TODO selector`) - never fake them as real.
 - Add the TC id in a docstring/comment for traceability.
 - **No hardcoded phone numbers, OTPs, or tokens.** Read them from `pickle_automation/config.py` (`PHONE_NUMBER`, `DEFAULT_OTP`, env) or `process.env`. Fix any existing hardcoded values only if the user agrees.
 
@@ -32,7 +31,7 @@ Ask one at a time:
 
 1. **Phone number** (with country code, e.g. `+91...`) - required for login flows.
 2. **OTP** - ask whether to use the test OTP (`DEFAULT_OTP`) or enter a real one.
-3. **Environment** - Appium: `APP_PATH`, device name, Appium server up?; Playwright: `BASE_URL`.
+3. **Environment** - `APP_PATH`, device name, Appium server up?
 4. Any other input the chosen cases need (test photo path, template name).
 
 Pass them **only as environment variables on the command**, e.g. `PHONE_NUMBER=... pytest -m smoke`; do not write them to `.env`, source files, or the workspace docs. Do not echo the phone number back in later summaries (mask it: `+91******3210`).
@@ -41,8 +40,7 @@ Pass them **only as environment variables on the command**, e.g. `PHONE_NUMBER=.
 
 Show the exact command (with the phone number masked) and ask: **Run now** / **Don't run - just keep the script**. If the Appium server or device is not available, say so instead of running.
 
-- Appium: `PHONE_NUMBER=... APP_PATH=... .venv/bin/pytest -m <marker> tests/<file>`
-- Playwright: `PHONE_NUMBER=... npx playwright test <file>`
+- `PHONE_NUMBER=... APP_PATH=... .venv/bin/pytest -m <marker> tests/<file>`
 
 ## 6. Report
 

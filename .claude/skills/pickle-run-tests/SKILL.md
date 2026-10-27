@@ -5,7 +5,7 @@ description: Boot the emulator, start the Appium server and run Pickle pytest su
 
 # Run the Pickle Appium tests
 
-Appium + pytest only (never Playwright). Prerequisites: `pickle-setup-environment` and `pickle-add-app` done.
+Appium + pytest only. Prerequisites: `pickle-setup-environment` and `pickle-add-app` done.
 
 ## 1. Start the emulator (skip if `adb devices` already lists one)
 

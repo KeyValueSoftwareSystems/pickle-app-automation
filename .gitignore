@@ -4,10 +4,7 @@ __pycache__/
 .env
 *.log
 .DS_Store
-node_modules/
 apps/*.apk
 apps/*.aab
 apps/*.xapk
-playwright-report/
-test-results/
 report.html

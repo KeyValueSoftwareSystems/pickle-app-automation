@@ -54,12 +54,12 @@ No channel-selection screen/option exists in the new design.
 - `pickle_automation/pages/base_page.py` - find/tap/type/wait helpers (Android UiAutomator-based text waits).
 - `pickle_automation/config.py` - `PHONE_NUMBER` (+919876543210 default), `DEFAULT_OTP` (123456), `TIMEOUT_SECONDS`.
 - `tests/test_pickles_generation_flow.py` - end-to-end flow; calls `login(..., preferred_channel="whatsapp")` (will break/need change when channel step is removed); skips when `APP_PATH` unset.
-- `tests/pickle-flow.spec.ts` - Playwright variant with hardcoded phone/OTP; targets a web app, not the Figma mobile flow.
+- (Removed 2026-10-27) The old Playwright suite and its config were deleted; the project is Appium only.
 - All element IDs in the page objects are placeholders (`com.pickle.app:id/...`), unverified against the real build.
 - No page objects exist yet for the country-code picker or success screen.
 
 ## Decisions (answered by user, 2026-10-23)
-- D1 Framework: **Appium (Python + pytest)**. Playwright suite is out of scope for this feature.
+- D1 Framework: **Appium (Python + pytest)**. Playwright was removed from the repo.
 - D2 OTP length: **4 digits** (matches Figma). `DEFAULT_OTP` (123456) is stale for this flow and must not be used.
 - D3 OTP source: **read from WhatsApp** on the device. Mechanism not specified yet (e.g. open WhatsApp via Appium and read the latest message, or read the notification shade); to be settled in stage 4. Requires a device/emulator with WhatsApp installed and logged in to the test number. SMS delivery and autofill for +91 resend are not covered by this and are marked manual or deferred unless the user says otherwise.
 - D4 Resend timer: **30 seconds** (matches Figma).
