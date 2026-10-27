@@ -1,0 +1,13 @@
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+*.log
+.DS_Store
+node_modules/
+apps/*.apk
+apps/*.aab
+apps/*.xapk
+playwright-report/
+test-results/
+report.html
