@@ -9,7 +9,7 @@ This project contains a starter Appium automation suite for the Pickle mobile ap
 
 ## Tech stack
 
-- Python 3
+- Python 3.10+
 - Pytest
 - Appium Python Client
 - Page Object Model (POM)
@@ -45,7 +45,7 @@ This project contains a starter Appium automation suite for the Pickle mobile ap
 APP_PATH=/path/to/pickle.apk
 PLATFORM_NAME=Android
 DEVICE_NAME=Pixel_6_API_34
-APP_PACKAGE=com.pickle.app
+APP_PACKAGE=com.pickleit.app.dev
 APPIUM_SERVER=http://127.0.0.1:4723
 ``` 
 
@@ -67,12 +67,19 @@ Open the project in Claude Code. Skills live in `.claude/skills/`.
 ## Running tests
 
 ```bash
-pytest -m mobile
+source android-env.sh && source .venv/bin/activate
+pytest tests/<file> -m mobile -v
+```
+
+Tests that tap Continue request a real OTP. They skip unless you pass a number you control and the dev OTP as environment variables (never commit them):
+
+```bash
+PHONE_NUMBER=+91XXXXXXXXXX DEFAULT_OTP=XXXX pytest tests/<file> -m mobile -v
 ```
 
 ## Notes
 
-The selectors in this starter are placeholders and should be updated to match the real app element IDs, accessibility labels, or XPath values used in the Pickle build.
+Selectors must come from the running app (`scripts/inspect_screen.py`), never be guessed. Any selector still marked `TODO selector` is an unverified placeholder.
 
 The flow is intentionally structured around the product requirements:
 

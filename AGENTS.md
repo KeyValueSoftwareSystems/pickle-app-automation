@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repo. Humans: see `README.md`.
 
 ## What this project is
 
-Appium + pytest (Python) UI automation for the **Pickle** Android app (Flutter, dev debug build `com.pickleit.app.dev`), run on an Android emulator. **Appium only: do not add Playwright, Selenium web tests, npm or TypeScript.**
+Appium + pytest (Python 3.10+) UI automation for the **Pickle** Android app (Flutter, dev debug build `com.pickleit.app.dev`), run on an Android emulator. **Appium only: do not add Playwright, Selenium web tests, npm or TypeScript.**
 
 ## Layout
 
@@ -22,7 +22,7 @@ apps/                     the APK (gitignored; never commit binaries)
 
 ```bash
 source android-env.sh && source .venv/bin/activate
-emulator -avd Pixel_6_API_34 -no-snapshot -no-audio &      # wait for boot: adb devices
+emulator -avd Pixel_6_API_34 -no-snapshot -no-audio -no-window -gpu host &   # wait for boot: adb devices
 appium &                                                   # port 4723, no /wd/hub base path
 pytest tests/<file> -m mobile -v
 ```
@@ -32,7 +32,7 @@ Config comes from `.env` (gitignored) and environment variables: `APP_PATH`, `AP
 ## Hard rules
 
 1. **Never write phone numbers, OTPs or tokens into any file** (code, docs, `.env`, commits, memory). Pass them as env vars on the command, and mask them (`+91******1234`) when reporting.
-2. **Tapping Continue on the login screen requests a real OTP.** Only do it with a number the user gave you for this purpose. Tests that do so must skip unless `PHONE_NUMBER` is set in the environment (see the `otp_page` fixture). The default in `config.py` is a dummy that must never be used for this.
+2. **Tapping Continue on the login screen requests a real OTP.** Only do it with a number the user gave you for this purpose. Tests that do so must skip unless `PHONE_NUMBER` is set in the environment (see the `otp_page` fixture). `PHONE_NUMBER` and `DEFAULT_OTP` default to `None` in `config.py` and are blank in `.env.example`, so nothing can send an OTP by accident.
 3. **Never invent selectors.** Read them from the running app (`scripts/inspect_screen.py`). If unknown, use a clearly marked `# TODO selector`, never a fake that looks real.
 4. Do not change or delete files outside the task. Ask before large downloads, `sudo`, or editing shell profiles.
 5. Report results faithfully: failing output verbatim, skipped is not passed.
@@ -53,7 +53,7 @@ Config comes from `.env` (gitignored) and environment variables: `APP_PATH`, `AP
 - Google's "Choose a phone number" sheet (`com.google.android.gms:id/cancel`) covers the login screen on arrival and when the phone field is focused: `LoginPage.dismiss_phone_hint_dialog()`.
 - The OTP field is one `EditText` behind 4 boxes and **auto-submits on the 4th digit**.
 - Do not send raw keycodes like backspace to Flutter fields mid-test.
-- The emulator needs host graphics and 4 GB RAM (`hw.gpu.mode = host`, `hw.ramSize = 4096`) or it freezes on the post-login home screen.
+- The emulator needs 4 GB RAM (`hw.ramSize = 4096`) and must run **headless with hardware rendering**: `emulator -avd Pixel_6_API_34 -no-snapshot -no-audio -no-window -gpu host`. Software rendering segfaults it on the post-login home screen, and `-gpu host` with a visible window can lose its GL context mid-run.
 - Never use broad `pkill -f`: stop the emulator with `kill $(pgrep -x qemu-system-x86)`.
 
 ## Claude Code skills (`.claude/skills/`)

@@ -1,6 +1,6 @@
 ---
 name: pickle-collect-docs
-description: Stage 1 of the Pickle automation pipeline. Asks the user, one at a time, for the Jira ticket, PRD, and Figma design, and records each in sources.md. Use when starting a Pickle automation or when documents are missing.
+description: Only invoked by pickle-automation-pipeline (do not start it directly, so the approval gates are not skipped). Stage 1 of the Pickle automation pipeline. Asks the user, one at a time, for the Jira ticket, PRD, and Figma design, and records each in sources.md. Use when starting a Pickle automation or when documents are missing.
 ---
 
 # Stage 1 - Collect documents

@@ -59,14 +59,22 @@ python3 -m venv .venv && source .venv/bin/activate && pip install -r requirement
    hw.ramSize = 4096
    vm.heapSize = 512
    ```
-   If the emulator logs "Your GPU drivers may have a bug. Switching to software rendering", start it with `-gpu host` (or `-gpu swiftshader_indirect` on machines without a usable GPU).
+   Start the emulator headless with hardware rendering: `emulator -avd Pixel_6_API_34 -no-snapshot -no-audio -no-window -gpu host`. Software rendering (`-gpu swiftshader_indirect`, or the automatic fallback after "Your GPU drivers may have a bug") crashed the emulator on Pickle's Home screen in testing on an Intel/NVIDIA laptop. If `-gpu host` is not possible on a machine, expect crashes after login and use a physical phone instead.
 
 ## 4. Appium + driver
+
+Install the Appium server first if `which appium` found nothing. Use the tested version:
+
+```bash
+npm install -g appium@2.12.1
+```
+
+If that fails with `EACCES`, do not use `sudo`: set a user prefix (`npm config set prefix ~/.npm-global`) and add `~/.npm-global/bin` to `PATH` for the session, then retry.
 
 Appium server and driver versions must be compatible. The newest uiautomator2 driver can require Appium 3.
 
 ```bash
-appium driver install uiautomator2          # try the latest first
+appium driver install uiautomator2@3.10.0   # tested with appium 2.12.1; or try the latest first
 ```
 
 If it errors with "server version it requires ... does not meet the currently installed one", **pin an older driver that supports your server** instead of upgrading Appium globally:

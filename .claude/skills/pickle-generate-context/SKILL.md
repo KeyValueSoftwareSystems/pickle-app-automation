@@ -1,6 +1,6 @@
 ---
 name: pickle-generate-context
-description: Stage 2 of the Pickle automation pipeline. After asking the user's permission, consolidates Jira, PRD and Figma sources into a single context.md (flows, screens, rules, open questions). Use after pickle-collect-docs.
+description: Only invoked by pickle-automation-pipeline (do not start it directly, so the approval gates are not skipped). Stage 2 of the Pickle automation pipeline. After asking the user's permission, consolidates Jira, PRD and Figma sources into a single context.md (flows, screens, rules, open questions). Use after pickle-collect-docs.
 ---
 
 # Stage 2 - Generate context

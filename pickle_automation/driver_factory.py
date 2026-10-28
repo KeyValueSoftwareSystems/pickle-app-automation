@@ -17,7 +17,11 @@ def create_driver():
             "APP_PATH is not configured. Set the APK or app bundle path in the environment or .env file."
         )
 
-    if PLATFORM_NAME.lower() == "android":
+    platform = PLATFORM_NAME.lower()
+    if platform not in ("android", "ios"):
+        raise ValueError(f"Unsupported PLATFORM_NAME {PLATFORM_NAME!r}; expected 'Android' or 'iOS'")
+
+    if platform == "android":
         options = UiAutomator2Options()
         options.platform_name = PLATFORM_NAME
         options.device_name = DEVICE_NAME

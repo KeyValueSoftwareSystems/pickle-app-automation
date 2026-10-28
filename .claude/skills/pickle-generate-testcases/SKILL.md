@@ -1,6 +1,6 @@
 ---
 name: pickle-generate-testcases
-description: Stage 3 of the Pickle automation pipeline. Turns context.md into structured, prioritized test cases (positive, negative, edge) in testcases.md and gets user approval. Use after pickle-generate-context.
+description: Only invoked by pickle-automation-pipeline (do not start it directly, so the approval gates are not skipped). Stage 3 of the Pickle automation pipeline. Turns context.md into structured, prioritized test cases (positive, negative, edge) in testcases.md and gets user approval. Use after pickle-generate-context.
 ---
 
 # Stage 3 - Generate test cases
@@ -26,7 +26,7 @@ One block per case:
 
 Coverage: every acceptance criterion maps to at least one case; add negative (invalid phone, wrong/expired OTP, no network) and edge cases the documents imply. End the file with a traceability table (criterion -> TC ids) and list any criterion with no case.
 
-Pytest markers in this repo are `mobile`, `smoke`, `regression`; set the Type so it maps cleanly.
+Pytest markers in this repo are `mobile`, `smoke`, `regression`. Type maps to markers as: `smoke` -> `smoke`; `regression`, `negative` and `edge` -> `regression` (every automated test also gets `mobile`).
 
 ## Approval gate
 

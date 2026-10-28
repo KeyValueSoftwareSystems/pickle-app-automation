@@ -1,6 +1,6 @@
 ---
 name: pickle-generate-testscript
-description: Stage 4 of the Pickle automation pipeline. Generates the automation script (page objects + tests) from approved test cases, then asks the user for runtime inputs such as phone number before running. Use after pickle-generate-testcases.
+description: Only invoked by pickle-automation-pipeline (do not start it directly, so the approval gates are not skipped). Stage 4 of the Pickle automation pipeline. Generates the automation script (page objects + tests) from approved test cases, then asks the user for runtime inputs such as phone number before running. Use after pickle-generate-testcases.
 ---
 
 # Stage 4 - Generate and run the test script
@@ -19,18 +19,18 @@ Invoke the `pickle-inspect-screen` skill for every screen the approved test case
 
 ## 3. Generate
 
-Follow the existing conventions - read `pickle_automation/pages/base_page.py`, `tests/test_pickles_generation_flow.py`, `tests/conftest.py`, and `tests/test_login_flow.py` first.
+Follow the existing conventions - read `pickle_automation/pages/base_page.py`, `tests/conftest.py` and `tests/test_login_flow.py` first. Do not copy patterns from the legacy `tests/test_pickles_generation_flow.py` (placeholder selectors, skipped).
 
 - Reuse/extend page objects (POM); add new pages only when needed. One test per approved TC, named `test_tc001_<slug>`, marked `@pytest.mark.mobile` plus `smoke`/`regression`. Selectors that are unknown go in as clearly marked placeholders (`# TODO selector`) - never fake them as real.
 - Add the TC id in a docstring/comment for traceability.
-- **No hardcoded phone numbers, OTPs, or tokens.** Read them from `pickle_automation/config.py` (`PHONE_NUMBER`, `DEFAULT_OTP`, env) or `process.env`. Fix any existing hardcoded values only if the user agrees.
+- **No hardcoded phone numbers, OTPs, or tokens.** Read them from `pickle_automation/config.py` (`PHONE_NUMBER`, `DEFAULT_OTP`, env) (read via `os.getenv`). Fix any existing hardcoded values only if the user agrees.
 
 ## 4. Collect run inputs (mandatory, before running)
 
 Ask one at a time:
 
 1. **Phone number** (with country code, e.g. `+91...`) - required for login flows.
-2. **OTP** - ask whether to use the test OTP (`DEFAULT_OTP`) or enter a real one.
+2. **OTP** - default to the fixed dev OTP: pass it as `DEFAULT_OTP` in the environment and do not ask each run. Ask only if the user has not provided it yet or wants a different one. It must never equal the "wrong OTP" used by negative tests.
 3. **Environment** - `APP_PATH`, device name, Appium server up?
 4. Any other input the chosen cases need (test photo path, template name).
 
