@@ -1,0 +1,1 @@
+"""Pickle mobile automation package."""
