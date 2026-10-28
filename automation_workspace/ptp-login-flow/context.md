@@ -71,13 +71,21 @@ No channel-selection screen/option exists in the new design.
 - Channel choice step: Jira/Figma win; existing `LoginPage.choose_otp_channel`/`WHATSAPP_OPTION`/`SMS_OPTION` and `login(preferred_channel=...)` are to be removed or deprecated, and the existing e2e test updated.
 - Suite: resolved to Appium (D1).
 
+## Observed in the dev build (2026-10-28, via Appium)
+- OTP entry is a single field behind 4 boxes. The app **auto-submits on the 4th digit** (invalid code shows "Invalid or expired OTP. Please try again." without tapping Verify). Verify is disabled below 4 digits.
+- OTP screen shows the number without the country code, a WhatsApp icon, Change, and "Resend code in Ns" counting down from 30.
+- After the timer ends the "Resend Code" button replaces the countdown and **the WhatsApp icon next to the number disappears** (possibly tied to the SMS fallback; confirm whether intended).
+- Successful verification shows "Successfully Verified - Your mobile number has been verified", then lands on Home (Explore / Images / Videos tabs, credit balance, Popular Categories, bottom nav Home / Search / My Studio / Profile).
+- A Google "Choose a phone number" system sheet appears over the login screen and when the phone field is focused.
+- A fixed dev OTP is accepted for any number (confirmed by the user); it is passed as an environment variable and never stored.
+
 ## Open questions (remaining)
 1. OTP expiry and retry-limit values, and the exact error messages/UI for wrong OTP, expired OTP, too many attempts, invalid number (not in Figma). Cases will assert generic error visibility unless told otherwise.
 2. Resend state after the 30s timer ends (button label/copy; any message for +91 saying both WhatsApp and SMS were sent) is not in Figma.
 3. Phone-number validation rules (length per country, +91 starting digits).
 4. Where the app lands after "Successfully Verified"; new vs. existing user behaviour ("Login or Sign Up").
 5. Exactly what "Change" does (back to login with number prefilled?) and back-arrow behaviour.
-6. How WhatsApp OTP reading should work technically (D3): real device with WhatsApp logged in, or emulator? Is reading the notification acceptable?
+6. (Resolved 2026-10-28) OTP source: the backend provides a fixed dev OTP, so WhatsApp/SMS reading is not needed for automation.
 7. SMS on +91 resend and autofill: confirm they stay manual/not automated.
 8. A non-+91 test number that receives WhatsApp (for R4) - available?
 9. Ticket key / Figma URL for traceability, if available.

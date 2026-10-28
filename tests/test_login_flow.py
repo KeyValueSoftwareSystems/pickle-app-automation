@@ -1,9 +1,17 @@
 """ptp-login-flow: WhatsApp-based OTP login. Cases traced to automation_workspace/ptp-login-flow/testcases.md."""
+import time
+
 import pytest
+from appium.webdriver.common.appiumby import AppiumBy
 
 from pickle_automation.pages.country_picker_page import CountryPickerPage
+from pickle_automation.pages.home_page import HomePage
 
-OTP_SCREEN_TODO = "TODO selector: OTP screen not explored yet (needs a real number; Continue sends a real OTP)"
+# Never equal to the dev OTP; used to exercise the invalid-OTP path.
+WRONG_OTP = "1111"
+
+# Tests taking the `otp_page` fixture tap Continue, which requests a real OTP.
+# They are skipped unless PHONE_NUMBER is set in the environment (see tests/conftest.py).
 
 
 @pytest.mark.mobile
@@ -62,13 +70,6 @@ def test_tc005_country_search_with_no_match(login_page):
 
 @pytest.mark.mobile
 @pytest.mark.regression
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc006_no_channel_selection_before_otp(login_page):
-    """TC-006 (R6, R1)"""
-
-
-@pytest.mark.mobile
-@pytest.mark.regression
 def test_tc007_invalid_short_number_does_not_reach_otp(login_page):
     """TC-007 (R7)"""
     login_page.enter_phone_number("12345")
@@ -101,49 +102,94 @@ def test_tc009_continue_with_no_network(login_page, phone_digits):
 
 
 @pytest.mark.mobile
+@pytest.mark.regression
+def test_tc006_no_channel_selection_before_otp(otp_page):
+    """TC-006 (R6, R1): Continue goes straight to the OTP screen, with no WhatsApp/SMS choice."""
+    driver = otp_page.driver
+    assert otp_page.is_visible()
+    assert driver.find_elements(
+        AppiumBy.ANDROID_UIAUTOMATOR, 'new UiSelector().descriptionContains("SMS")'
+    ) == []
+    assert otp_page.is_displayed(*otp_page.WHATSAPP_ICON)  # indicator only, not an option
+
+
+@pytest.mark.mobile
 @pytest.mark.smoke
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc010_otp_screen_content():
-    """TC-010 (R1, R10)"""
+def test_tc010_otp_screen_content(otp_page, phone_digits):
+    """TC-010 (R1, R10): OTP screen shows number, WhatsApp indicator, Change, Verify and a 30s countdown."""
+    assert otp_page.is_displayed(*otp_page.TITLE)
+    assert otp_page.is_displayed(*otp_page.WHATSAPP_ICON)
+    assert otp_page.shows_number(phone_digits)
+    assert otp_page.is_displayed(*otp_page.CHANGE_LINK)
+    assert otp_page.is_displayed(*otp_page.OTP_INPUT)
+    assert not otp_page.is_verify_enabled()
+    assert 25 <= otp_page.countdown_seconds() <= 30
+
+
+@pytest.mark.mobile
+@pytest.mark.smoke
+def test_tc011_verify_with_correct_otp(otp_page, otp_value):
+    """TC-011 (R1, R2, R11): the dev OTP verifies, "Successfully Verified" shows, then Home loads."""
+    otp_page.enter_otp(otp_value)
+    assert otp_page.is_verified(), "Successfully Verified message did not appear"
+    assert HomePage(otp_page.driver).is_loaded(), "Home screen did not load after verification"
 
 
 @pytest.mark.mobile
 @pytest.mark.regression
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc012_manual_four_digit_entry_enables_verify():
-    """TC-012 (Flow 6)"""
+def test_tc012_manual_four_digit_entry_enables_verify(otp_page):
+    """TC-012 (Flow 6): typing 4 digits fills the boxes and enables Verify.
+
+    Observed: the app also auto-submits on the 4th digit, so an invalid code shows the error.
+    """
+    otp_page.enter_otp(WRONG_OTP)
+    assert otp_page.typed_otp() == WRONG_OTP
+    assert otp_page.is_verify_enabled()
 
 
 @pytest.mark.mobile
 @pytest.mark.regression
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc013_verify_disabled_with_incomplete_otp():
+def test_tc013_verify_disabled_with_incomplete_otp(otp_page):
     """TC-013"""
+    otp_page.enter_otp("12")
+    assert otp_page.typed_otp() == "12"
+    assert not otp_page.is_verify_enabled()
 
 
 @pytest.mark.mobile
 @pytest.mark.regression
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc014_wrong_otp_rejected():
-    """TC-014 (R7)"""
+def test_tc014_wrong_otp_rejected(otp_page):
+    """TC-014 (R7): a wrong OTP shows "Invalid or expired OTP" and keeps the user on the OTP screen."""
+    otp_page.enter_otp(WRONG_OTP)
+    assert otp_page.is_error_visible()
+    assert otp_page.is_displayed(*otp_page.TITLE)
+    assert not otp_page.is_verified(timeout_seconds=2)
 
 
 @pytest.mark.mobile
 @pytest.mark.regression
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc015_change_returns_to_number_entry():
+def test_tc015_change_returns_to_number_entry(otp_page, login_page):
     """TC-015 (Flow 5)"""
+    otp_page.tap_change()
+    assert login_page.is_login_screen_visible()
+    assert login_page.is_displayed(*login_page.PHONE_INPUT)
 
 
 @pytest.mark.mobile
 @pytest.mark.regression
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc016_resend_timer_counts_down_from_30s():
+def test_tc016_resend_timer_counts_down_from_30s(otp_page):
     """TC-016 (R7, R10, D4)"""
+    first = otp_page.countdown_seconds()
+    assert 25 <= first <= 30
+    time.sleep(4)
+    assert otp_page.countdown_seconds() < first
+    assert not otp_page.is_resend_available()
 
 
 @pytest.mark.mobile
 @pytest.mark.regression
-@pytest.mark.skip(reason=OTP_SCREEN_TODO)
-def test_tc017_resend_available_after_timer_ends():
-    """TC-017 (R7, R10)"""
+def test_tc017_resend_available_after_timer_ends(otp_page):
+    """TC-017 (R7, R10): after ~30s the countdown is replaced by an enabled "Resend Code" button."""
+    otp_page.wait_for_resend(timeout_seconds=40)
+    assert otp_page.is_resend_available()
+    assert not otp_page.driver.find_elements(*otp_page.COUNTDOWN)

@@ -21,7 +21,7 @@ Run it in the background; boot takes about 30 s with KVM.
 ## 2. Start Appium (skip if `curl -s localhost:4723/status` answers)
 
 ```bash
-source android-env.sh && nohup appium > <scratchpad>/appium.log 2>&1 &
+source android-env.sh && setsid nohup appium > <scratchpad>/appium.log 2>&1 < /dev/null &
 ```
 
 The driver factory uses `APPIUM_SERVER` from `.env` as-is (default `http://127.0.0.1:4723`, **no `/wd/hub`**).
@@ -55,5 +55,7 @@ Pass/fail/skip per TC id (docstrings carry the TC id), failing output verbatim. 
 | `NoSuchElement` on the phone field | Google "Choose a phone number" sheet covers the app; `LoginPage.dismiss_phone_hint_dialog()` handles it |
 | `StaleElementReferenceException` on Flutter fields | Re-find the element after typing (the field is rebuilt) |
 | Session creation hangs or `INSTALL_FAILED_*` | Re-run `pickle-add-app` |
+| `adb devices` empty / UiAutomator2 "instrumentation process is not running" mid-run | The emulator froze (usually the post-login home screen on a small or software-rendered AVD). Check the AVD sizing in `pickle-setup-environment`, then `adb kill-server`, stop the emulator by exact process name (`kill $(pgrep -x qemu-system-x86)`, never a broad `pkill -f`, which can kill Appium/your shell), and boot it again |
+| Tests that tap Continue are skipped | They need `PHONE_NUMBER` set in the environment (a number you control) and `DEFAULT_OTP` for the verify tests |
 
 Leave the emulator and Appium running unless the user asks to stop them.

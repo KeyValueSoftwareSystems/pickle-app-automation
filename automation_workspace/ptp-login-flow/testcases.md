@@ -162,9 +162,9 @@ Test data placeholders: `<PHONE_NUMBER>` (+91, WhatsApp + SMS capable), `<NON_IN
 - Type: negative
 - Traces to: R7
 - Preconditions: On OTP screen
-- Test data: "0000" (not the received OTP)
+- Test data: "1111" (anything other than the valid OTP)
 - Steps:
-  1. Enter "0000".
+  1. Enter "1111".
   2. Tap Verify.
 - Expected result: Error is shown (generic; exact copy TBD, Open Q1); user stays on OTP screen; not logged in.
 - Automate: yes

@@ -52,6 +52,14 @@ python3 -m venv .venv && source .venv/bin/activate && pip install -r requirement
      -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
    ```
    Apple-silicon Macs need an `arm64-v8a` image instead of `x86_64`.
+4. **Resize the AVD** (the defaults freeze on Pickle's video-heavy home screen: software graphics, 1.5 GB RAM). Edit `~/.android/avd/Pixel_6_API_34.avd/config.ini`:
+   ```
+   hw.gpu.enabled = yes
+   hw.gpu.mode = host
+   hw.ramSize = 4096
+   vm.heapSize = 512
+   ```
+   If the emulator logs "Your GPU drivers may have a bug. Switching to software rendering", start it with `-gpu host` (or `-gpu swiftshader_indirect` on machines without a usable GPU).
 
 ## 4. Appium + driver
 
